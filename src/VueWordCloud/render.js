@@ -6,6 +6,7 @@ export default function(h) {
 		cloudWords,
 		separateAnimationDelay,
 		separateAnimationDuration,
+		trigger
 	} = this;
 	$scopedSlots = {
 		default({text}) {
@@ -71,8 +72,24 @@ export default function(h) {
 						},
 					},
 					[h(
-						'div',
+						'span',
 						{
+							on: {
+								click() {
+									if (trigger) {
+										trigger({
+											color,
+											font,
+											left,
+											rotation,
+											text,
+											top,
+											weight,
+											word
+										});
+									}
+								}
+							},
 							style: {
 								bottom: '50%',
 								color: color,

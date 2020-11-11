@@ -328,7 +328,6 @@ export default {
 								this.progress = null;
 							});
 					}
-
 					return [];
 				});
 		}

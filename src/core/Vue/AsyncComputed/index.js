@@ -22,18 +22,15 @@ export default function(asyncComputed) {
 		beforeCreate() {
 			let currentContexts = new Set();
 
-			Object.entries(asyncComputed).forEach(([key, {
-				get,
-				default: currentValue,
-				errorHandler = Function_noop,
-			}]) => {
+			Object.keys(asyncComputed).forEach(key => {
+				asyncComputed[key].errorHandler = Function_noop;
 				let firstCall = true;
 				let currentContext;
 
 				this.$options.computed[key] = function() {
 					this[prefixTrigger + key];
 					this[prefixPromise + key];
-					return currentValue;
+					return asyncComputed[key].default;
 				};
 
 				this.$options.computed[prefixPromise + key] = function() {
@@ -43,22 +40,22 @@ export default function(asyncComputed) {
 					}
 					if (firstCall) {
 						firstCall = false;
-						if (Function_is(currentValue)) {
-							currentValue = currentValue.call(this);
+						if (Function_is(asyncComputed[key].default)) {
+							asyncComputed[key].default = asyncComputed[key].default.call(this);
 						}
 					}
-					let context = new Context(currentValue);
+					let context = new Context(asyncComputed[key].default);
 					currentContext = context;
 					currentContexts.add(currentContext);
 					new Promise(resolve => {
-						resolve(get.call(this, context));
+						resolve(asyncComputed[key].get.call(this, context));
 					})
 						.then(value => {
 							context.throwIfInterrupted();
-							currentValue = value;
+							asyncComputed[key].default = value;
 							this[prefixTrigger + key] = {};
 						})
-						.catch(errorHandler);
+						.catch(asyncComputed[key].errorHandler);
 				};
 			});
 		},
