@@ -32,7 +32,9 @@ export default {
 	createWorker: {
 		type: Function,
 		default(code) {
-			return new Worker(URL.createObjectURL(new Blob([code])));
+			return new Worker(URL.createObjectURL(new Blob([code], {
+				type: 'application/javascript'
+			})));
 		},
 	},
 
